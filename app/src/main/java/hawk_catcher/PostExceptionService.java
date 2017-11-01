@@ -1,4 +1,4 @@
-package com.hawkandroidcatcher.akscorp.hawkandroidcatcher;
+package hawk_catcher;
 
 import android.app.IntentService;
 import android.content.Intent;
@@ -23,6 +23,13 @@ public class PostExceptionService extends IntentService {
     private String token = "";
 
     /**
+     * Constructor with class name
+     */
+    public PostExceptionService() {
+        super("PostExceptionService");
+    }
+
+    /**
      * Create json with exception and device information
      *
      * @param throwable
@@ -32,10 +39,8 @@ public class PostExceptionService extends IntentService {
         JSONObject jsonParam = new JSONObject();
         try {
             jsonParam.put("token", token);
-            jsonParam.put("message", throwable.fillInStackTrace());
-            jsonParam.put("errorLocation", throwable.getLocalizedMessage());
-            jsonParam.put("stack", throwable.getStackTrace());
-
+            jsonParam.put("message", throwable.getCause());
+            jsonParam.put("stack", throwable.toString());
             jsonParam.put("brand", Build.BRAND);
             jsonParam.put("device", Build.DEVICE);
             jsonParam.put("model", Build.MODEL);
@@ -46,6 +51,7 @@ public class PostExceptionService extends IntentService {
         } catch (JSONException e) {
             e.printStackTrace();
         }
+        Log.d("Service info", jsonParam.toString());
         return jsonParam;
     }
 
@@ -75,14 +81,8 @@ public class PostExceptionService extends IntentService {
 
             conn.disconnect();
         } catch (Exception e) {
+            Log.e("Service info", e.toString());
         }
-    }
-
-    /**
-     * Constructor with class name
-     */
-    public PostExceptionService() {
-        super("PostExceptionService");
     }
 
     /**

@@ -1,8 +1,9 @@
-package com.hawkandroidcatcher.akscorp.hawkandroidcatcher;
+package hawk_catcher;
 
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 
 import java.io.Serializable;
 
@@ -17,11 +18,9 @@ public class HawkExceptionCatcher implements Thread.UncaughtExceptionHandler {
     private Thread.UncaughtExceptionHandler oldHandler;
 
     private boolean isActive = false;
-    private String EXCEPTION_POST_URL = "http://10.0.2.2:3000/catcher/javaAndroid",
-            HAWK_TOKEN = "";
+    private String HAWK_TOKEN = "";
 
     Context context;
-    private static Thread postThread;
 
     /**
      * @param token - hawk initialization project token
@@ -80,18 +79,34 @@ public class HawkExceptionCatcher implements Thread.UncaughtExceptionHandler {
     }
 
     /**
+     * Post any exception to server
+     *
+     * @param throwable
+     */
+    public void log(Throwable throwable)
+    {
+        startExceptionPostService(throwable);
+    }
+
+    /**
      * Start service with post data
      *
      * @param throwable
      */
     private void startExceptionPostService(Throwable throwable) {
-        Bundle extras = new Bundle();
-        extras.putSerializable("exception", (Serializable) throwable);
-        extras.putString("token", HAWK_TOKEN);
+        try {
+            Bundle extras = new Bundle();
+            extras.putSerializable("exception", (Serializable) throwable);
+            extras.putString("token", HAWK_TOKEN);
 
-        Intent intent = new Intent(context, PostExceptionService.class);
-        intent.putExtras(extras);
+            Intent intent = new Intent(context, PostExceptionService.class);
+            intent.putExtras(extras);
 
-        context.startService(intent);
+            context.startService(intent);
+        }
+        catch (Exception e)
+        {
+            Log.e("Hawk catcher", e.toString());
+        }
     }
 }
