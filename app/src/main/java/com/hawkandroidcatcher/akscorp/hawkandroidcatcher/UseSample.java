@@ -2,6 +2,8 @@ package com.hawkandroidcatcher.akscorp.hawkandroidcatcher;
 
 import android.app.Application;
 
+import HawkCatcher.HawkExceptionCatcher;
+
 /**
  * Created by AksCorp on 23.10.2017.
  */

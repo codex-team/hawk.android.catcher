@@ -19,7 +19,7 @@
             </intent-filter>
         </activity>
         <service
-            android:name=".PostExceptionService"
+            android:name="HawkCatcher.PostExceptionService"
             android:process=":exception" >
             <intent-filter>
                 <action android:name="android.intent.action.REPORT" />
