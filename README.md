@@ -1,6 +1,6 @@
-﻿#***HawkCatcher***
+# HawkCatcher
 
-###Сборщик ошибок 
+### Сборщик ошибок 
 Сбор ошибок непроверяемых ошибок во время работы приложение и отправки их в на сервер
 Так же возможность отправлять отловленные в **try-catch** ошибки
 
@@ -36,15 +36,15 @@ public class UseSample extends Application {
 
 
 > **Context** - текущий context приложения
+
 > **Token** - уникальный ключ авторизации
 Примеры вывода:
 
 ```json
 {  
    "token":"0927e8cc-f3f0-4ce4-aa27-916f0774af51",
-   "message":"java.lang.RuntimeException: Unable to start activity ComponentInfo{com.hawkandroidcatcher.akscorp.hawkandroidcatcher\/com.hawkandroidcatcher.akscorp.hawkandroidcatcher.SampleMainActivity}: java.lang.ArithmeticException: divide by zero",
-   "errorLocation":"Unable to start activity ComponentInfo{com.hawkandroidcatcher.akscorp.hawkandroidcatcher\/com.hawkandroidcatcher.akscorp.hawkandroidcatcher.SampleMainActivity}: java.lang.ArithmeticException: divide by zero",
-   "stack":"[Ljava.lang.StackTraceElement;@28d74355",
+   "message":"java.lang.ArithmeticException: divide by zero",
+   "stack":"java.lang.RuntimeException: Unable to start activity ComponentInfo{com.hawkandroidcatcher.akscorp.hawkandroidcatcher\/com.hawkandroidcatcher.akscorp.hawkandroidcatcher.SampleMainActivity}: java.lang.ArithmeticException: divide by zero",
    "brand":"Android",
    "device":"generic_x86",
    "model":"Android SDK built for x86",
@@ -54,19 +54,26 @@ public class UseSample extends Application {
    "incremental":"4212452"
 }
 ```
-###Параметры вывода
+### Параметры вывода
 > **message** - название самой ошибки
-> **errorLocation** - место где произошла ошибка
+
 > **stack** - стек ошибки
+
 > **brand** - код поставщика android устройства
+
 > **device** - имя устройства в рамках индустриального дизайна(?)
+
 > **model** - общеизвестное имя android устройства
+
 > **product** - общее наименование продукции
+
 > **SDK** - версия SDK
-> **release** - словестное название версии SDK
+
+> **release** - версия андроида
+
 > **incremental** - 
 
-##Пример работы  
+## Пример работы  
 
 Отлавливание **UncheckedException**
 
