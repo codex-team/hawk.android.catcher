@@ -2,8 +2,12 @@ package hawk_catcher;
 
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.Serializable;
 
@@ -20,6 +24,8 @@ public class HawkExceptionCatcher implements Thread.UncaughtExceptionHandler {
     private boolean isActive = false;
     private String HAWK_TOKEN = "";
 
+    private boolean isPostStackEnable = true;
+
     Context context;
 
     /**
@@ -28,6 +34,16 @@ public class HawkExceptionCatcher implements Thread.UncaughtExceptionHandler {
     public HawkExceptionCatcher(Context context, String token) {
         HAWK_TOKEN = token;
         this.context = context;
+    }
+
+    /**
+     * Set enable stack trace post
+     *
+     * @param isEnable
+     */
+    public void setEnableStackPost(boolean isEnable)
+    {
+        isPostStackEnable = isEnable;
     }
 
     /**
@@ -74,7 +90,7 @@ public class HawkExceptionCatcher implements Thread.UncaughtExceptionHandler {
      */
     @Override
     public void uncaughtException(Thread thread, Throwable throwable) {
-        startExceptionPostService(throwable);
+        startExceptionPostService(formingJsonExceptionInfo(throwable).toString());
         oldHandler.uncaughtException(thread, throwable);
     }
 
@@ -85,19 +101,62 @@ public class HawkExceptionCatcher implements Thread.UncaughtExceptionHandler {
      */
     public void log(Throwable throwable)
     {
-        startExceptionPostService(throwable);
+        startExceptionPostService(formingJsonExceptionInfo(throwable).toString());
+    }
+
+    /**
+     * Forming stack trace
+     *
+     * @param throwable
+     * @return
+     */
+    private String getStackTrace(Throwable throwable)
+    {
+        if(!isPostStackEnable)
+            return "none";
+        String result = "";
+        StackTraceElement[] stackTraceElements = throwable.getStackTrace();
+        for(int i=0;i<stackTraceElements.length;i++)
+            result += stackTraceElements[i].toString() + "\n";
+        return result;
+    }
+
+    /**
+     * Create json with exception and device information
+     *
+     * @param throwable
+     * @return
+     */
+    private JSONObject formingJsonExceptionInfo(Throwable throwable) {
+        JSONObject jsonParam = new JSONObject();
+        if(throwable.getCause() != null)
+            throwable = throwable.getCause();
+        try {
+            jsonParam.put("token", HAWK_TOKEN);
+            jsonParam.put("message", throwable.toString());
+            jsonParam.put("stack", getStackTrace(throwable));
+            jsonParam.put("brand", Build.BRAND);
+            jsonParam.put("device", Build.DEVICE);
+            jsonParam.put("model", Build.MODEL);
+            jsonParam.put("product", Build.PRODUCT);
+            jsonParam.put("SDK", Build.VERSION.SDK_INT);
+            jsonParam.put("release", Build.VERSION.RELEASE);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        Log.d("Post json", jsonParam.toString());
+        return jsonParam;
     }
 
     /**
      * Start service with post data
      *
-     * @param throwable
+     * @param exceptionInfoJSON
      */
-    private void startExceptionPostService(Throwable throwable) {
+    private void startExceptionPostService(String exceptionInfoJSON) {
         try {
             Bundle extras = new Bundle();
-            extras.putSerializable("exception", (Serializable) throwable);
-            extras.putString("token", HAWK_TOKEN);
+            extras.putString("exceptionInfoJSON", exceptionInfoJSON);
 
             Intent intent = new Intent(context, PostExceptionService.class);
             intent.putExtras(extras);

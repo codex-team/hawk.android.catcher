@@ -20,8 +20,7 @@ import java.net.URL;
 public class PostExceptionService extends IntentService {
 
     private final String EXCEPTION_POST_URL = "http://10.0.2.2:3000/catcher/javaAndroid";
-    private String token = "";
-
+    private String exceptionInfoJSON = "";
     /**
      * Constructor with class name
      */
@@ -30,37 +29,11 @@ public class PostExceptionService extends IntentService {
     }
 
     /**
-     * Create json with exception and device information
-     *
-     * @param throwable
-     * @return
-     */
-    private JSONObject formingJsonExceptionInfo(Throwable throwable) {
-        JSONObject jsonParam = new JSONObject();
-        try {
-            jsonParam.put("token", token);
-            jsonParam.put("message", throwable.getCause());
-            jsonParam.put("stack", throwable.toString());
-            jsonParam.put("brand", Build.BRAND);
-            jsonParam.put("device", Build.DEVICE);
-            jsonParam.put("model", Build.MODEL);
-            jsonParam.put("product", Build.PRODUCT);
-            jsonParam.put("SDK", Build.VERSION.SDK);
-            jsonParam.put("release", Build.VERSION.RELEASE);
-            jsonParam.put("incremental", Build.VERSION.INCREMENTAL);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        Log.d("Service info", jsonParam.toString());
-        return jsonParam;
-    }
-
-    /**
      * Post exception information to hawk server
      *
-     * @param throwable
+     * @param exceptionInfoJSON
      */
-    private void postException(final Throwable throwable) {
+    private void postException(final String exceptionInfoJSON) {
         try {
             URL url = new URL(EXCEPTION_POST_URL);
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
@@ -71,7 +44,7 @@ public class PostExceptionService extends IntentService {
 
             //Log.i("JSON", jsonParam.toString());
             DataOutputStream os = new DataOutputStream(conn.getOutputStream());
-            os.writeBytes(formingJsonExceptionInfo(throwable).toString());
+            os.writeBytes(exceptionInfoJSON);
 
             os.flush();
             os.close();
@@ -93,8 +66,7 @@ public class PostExceptionService extends IntentService {
     @Override
     protected void onHandleIntent(Intent intent) {
         Bundle extras = intent.getExtras();
-        Throwable exception = (Throwable) extras.getSerializable("exception");
-        token = extras.getString("token");
-        postException(exception);
+        exceptionInfoJSON = extras.getString("exceptionInfoJSON");
+        postException(exceptionInfoJSON);
     }
 }
