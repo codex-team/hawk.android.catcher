@@ -16,7 +16,7 @@
    }
    ...
    dependencies {
-        compile 'com.github.codex-team:hawk.android:v1.1'
+        compile 'com.github.codex-team:hawk.android:v2.0'
    }
 ```
 ### Пример использования
