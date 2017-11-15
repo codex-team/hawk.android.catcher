@@ -19,7 +19,7 @@ import java.net.URL;
 
 public class PostExceptionService extends IntentService {
 
-    private final String EXCEPTION_POST_URL = "https://hawk.so/catcher/javaAndroid";
+    private final String EXCEPTION_POST_URL = "https://hawk.so/catcher/android";
     private String exceptionInfoJSON = "";
     /**
      * Constructor with class name
