@@ -1,13 +1,26 @@
-# Hawk android catcher
+# Hawk android catcher ![](https://jitpack.io/v/jitpack/maven-simple.svg?style=flat-square)
 ### Сборщик ошибок 
 Эта библиотека обеспечивает сбор непроверяемых ошибок во время работы приложения и отправляет их в ваш https://hawk.so личный кабинет.
 Так же существует возможность отправлять отловленные в **try-catch** ошибки
 
 -----
 
-Подключение
-------------
-Добавить в Ваш класс **Application** следующий код
+### Подключение
+Для подключения библиотеки необходимо добавить в gradle maven репозиторий и ссылку с библиотеку. Пример ниже 
+```
+    allprojects {
+        repositories {
+            jcenter()
+            maven { url "https://jitpack.io" }
+        }
+   }
+   ...
+   dependencies {
+        compile 'com.github.codex-team:hawk.android:v1.1'
+   }
+```
+### Пример использования
+Для активации прослушки ошибок, вы можете добавить в ваш класс (например)**Application** следующий код
 
 ```java
 public class UseSample extends Application {
@@ -15,7 +28,7 @@ public class UseSample extends Application {
     HawkExceptionCatcher exceptionCatcher;
     public void defineExceptionCather()
     {
-        exceptionCatcher = new HawkExceptionCatcher(this,"0927e8cc-f3f0-4ce4-aa27-916f0774af51");
+        exceptionCatcher = new HawkExceptionCatcher(this,"your hawk token");
         try {
             exceptionCatcher.start();
         } catch (Exception e) {
@@ -30,17 +43,16 @@ public class UseSample extends Application {
 }
 
 ```
-Входные параметры 
-
+**Входные параметры** 
 
 > **Context** - текущий context приложения
 
-> **Token** - уникальный ключ авторизации
-Примеры вывода:
+> **Token** - уникальный ключ авторизации(Например:0927e8cc-f3f0-4ce4-aa27-916f0774af51)
 
+**Примеры вывода:**
 ```json
 {  
-   "token":"0927e8cc-f3f0-4ce4-aa27-916f0774af51",
+   "token":"your hawk token",
    "message":"java.lang.ArithmeticException: divide by zero",
    "stack":"java.lang.RuntimeException: Unable to start activity ComponentInfo{com.hawkandroidcatcher.akscorp.hawkandroidcatcher\/com.hawkandroidcatcher.akscorp.hawkandroidcatcher.SampleMainActivity}: java.lang.ArithmeticException: divide by zero",
    "brand":"Android",
@@ -49,9 +61,9 @@ public class UseSample extends Application {
    "product":"sdk_google_phone_x86",
    "SDK":"22",
    "release":"5.1.1",
-   "incremental":"4212452"
 }
 ```
+
 ### Параметры вывода
 > **message** - название самой ошибки
 
@@ -68,8 +80,6 @@ public class UseSample extends Application {
 > **SDK** - версия SDK
 
 > **release** - версия андроида
-
-> **incremental** - 
 
 ## Пример работы  
 
