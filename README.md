@@ -1,12 +1,11 @@
-# Hawk android catcher ![](https://jitpack.io/v/jitpack/maven-simple.svg?style=flat-square)
-### Сборщик ошибок 
-Эта библиотека обеспечивает сбор непроверяемых ошибок во время работы приложения и отправляет их в ваш https://hawk.so личный кабинет.
-Так же существует возможность отправлять отловленные в **try-catch** ошибки
-
+# Hawk Android catcher ![](https://jitpack.io/v/jitpack/maven-simple.svg?style=flat-square)
+### Exception catcher
+This library provides catching errors while the application is running and sending them to your personal account [Hawk](https://www.hawk.so). 
+You can also send errors, which you caught in **try-catch**
 -----
 
-### Подключение
-Для подключения библиотеки необходимо добавить в gradle maven репозиторий и ссылку с библиотеку. Пример ниже 
+### Import
+To connect the library, add the following code to your **build.gradle** config.
 ```
     allprojects {
         repositories {
@@ -19,8 +18,8 @@
         compile 'com.github.codex-team:hawk.android:v2.0'
    }
 ```
-### Пример использования
-Для активации прослушки ошибок, вы можете добавить в ваш класс (например)**Application** следующий код
+### Example
+For cather activation add following code to your application class (f.e. **UseSample**)
 
 ```java
 public class UseSample extends Application {
@@ -43,13 +42,13 @@ public class UseSample extends Application {
 }
 
 ```
-**Входные параметры** 
+**Input parameters** 
 
-> **Context** - текущий context приложения
+> **Context** - current application context
 
-> **Token** - уникальный ключ авторизации(Например:0927e8cc-f3f0-4ce4-aa27-916f0774af51)
+> **Token** - unique authorization key(f.e. 0927e8cc-f3f0-4ce4-aa27-916f0774af51)
 
-**Примеры вывода:**
+**Output example:**
 ```json
 {  
    "token":"your hawk token",
@@ -60,30 +59,30 @@ public class UseSample extends Application {
    "model":"Android SDK built for x86",
    "product":"sdk_google_phone_x86",
    "SDK":"22",
-   "release":"5.1.1",
+   "release":"5.1.1"
 }
 ```
 
 ### Параметры вывода
-> **message** - название самой ошибки
+> **message** - exception name
 
-> **stack** - стек ошибки
+> **stack** - error stack trace
 
-> **brand** - код поставщика android устройства
+> **brand** - vendor android device code
 
-> **device** - имя устройства в рамках индустриального дизайна(?)
+> **device** - device name
 
-> **model** - общеизвестное имя android устройства
+> **model** - device model
 
-> **product** - общее наименование продукции
+> **product** - common name of product
 
-> **SDK** - версия SDK
+> **SDK** - SDK version
 
-> **release** - версия андроида
+> **release** - Android version
 
-## Пример работы  
+## Example  
 
-Отлавливание **UncheckedException**
+Catching **UncheckedException**
 
 ```java
 void myTask() {
@@ -92,9 +91,9 @@ void myTask() {
 ...
 myTask();
 ```
-Отловленная ошибка будет соотвествовать формату **JSON** выше
+Caught exception will be send in **JSON** format 
 
-Отправка отловленных исключений
+Sending caught exceptions
 
 ```java
 void myTask() {
@@ -102,21 +101,21 @@ void myTask() {
         int d = 10 / 0;
     } catch(ArithmeticException e) {
         exceptionCatcher.log(e); 
-        //Данный метод формирует исключение в JSON и отправляет его
+        //This method send exception in JSON format
     }
 }
 ...
 myTask();
 ```
-При этом ошибки, отловленные в **try-catch** без использования функции **log()** отправлены не будут
 
+Wherein, without using the function **log()** in the **try-catch**, the error is not send
 ```java
 void myTask() {
     try {
         int d = 10 / 0;
     } catch(ArithmeticException e) {
         e.printStackTrace();
-        //ошибка отправлена не будет
+        //exception is not send
     }
 }
 ...
