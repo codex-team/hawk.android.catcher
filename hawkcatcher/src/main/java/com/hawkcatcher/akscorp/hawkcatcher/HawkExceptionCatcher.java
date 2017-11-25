@@ -4,7 +4,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.Display;
+import android.view.WindowManager;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -129,21 +132,36 @@ public class HawkExceptionCatcher implements Thread.UncaughtExceptionHandler {
      */
     private JSONObject formingJsonExceptionInfo(Throwable throwable) {
         JSONObject jsonParam = new JSONObject();
+        JSONObject deviceInfo = new JSONObject();
+
         if(throwable.getCause() != null)
             throwable = throwable.getCause();
         try {
             jsonParam.put("token", HAWK_TOKEN);
             jsonParam.put("message", throwable.toString());
             jsonParam.put("stack", getStackTrace(throwable));
-            jsonParam.put("brand", Build.BRAND);
-            jsonParam.put("device", Build.DEVICE);
-            jsonParam.put("model", Build.MODEL);
-            jsonParam.put("product", Build.PRODUCT);
-            jsonParam.put("SDK", Build.VERSION.SDK_INT);
-            jsonParam.put("release", Build.VERSION.RELEASE);
+            jsonParam.put("language", "Java");
+
+            deviceInfo.put("brand", Build.BRAND);
+            deviceInfo.put("device", Build.DEVICE);
+            deviceInfo.put("model", Build.MODEL);
+            deviceInfo.put("product", Build.PRODUCT);
+            deviceInfo.put("SDK", Build.VERSION.SDK_INT);
+            deviceInfo.put("release", Build.VERSION.RELEASE);
+
+            WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
+            Display display = wm.getDefaultDisplay();
+            int width = display.getWidth();
+            int height = display.getHeight();
+
+            deviceInfo.put("screenSize", Integer.toString(width) + "x" + Integer.toString(height));
+
+            jsonParam.put("deviceInfo",deviceInfo);
+
         } catch (JSONException e) {
             e.printStackTrace();
         }
+
         Log.d("Post json", jsonParam.toString());
         return jsonParam;
     }
