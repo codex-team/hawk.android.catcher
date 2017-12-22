@@ -1,10 +1,10 @@
 # Hawk Android catcher ![](https://jitpack.io/v/jitpack/maven-simple.svg?style=flat-square)
 ### Exception catcher
-This library provides catching errors while the application is running and sending them to your personal account [Hawk](https://www.hawk.so). 
+This library provides in-app errors catching and sending them to the [Hawk](https://www.hawk.so).  monitoring system.
 You can also send errors, which you caught in **try-catch**
 -----
 
-### Import
+### Connection
 To connect the library, add the following code to your **build.gradle** config.
 ```
     allprojects {
@@ -46,7 +46,7 @@ public class UseSample extends Application {
 
 > **Context** - current application context
 
-> **Token** - unique authorization key(f.e. 0927e8cc-f3f0-4ce4-aa27-916f0774af51)
+> **Token** - unique authorization key(f.e. 0927e8cc-f3f0-4ce4-aa27-916f0774af51). You can get token after hawk.so registration
 
 **Output example:**
 ```json
@@ -60,13 +60,14 @@ public class UseSample extends Application {
    "product":"sdk_google_phone_x86",
    "SDK":"22",
    "release":"5.1.1"
+   "screenSize":"1920*1080"
 }
 ```
 
 ### Параметры вывода
 > **message** - exception name
 
-> **stack** - error stack trace
+> **stack** - error's stack trace
 
 > **brand** - vendor android device code
 
@@ -78,7 +79,9 @@ public class UseSample extends Application {
 
 > **SDK** - SDK version
 
-> **release** - Android version
+> **release** - android version
+
+> **screen size** - device screen size
 
 ## Example  
 
@@ -91,9 +94,9 @@ void myTask() {
 ...
 myTask();
 ```
-Caught exception will be send in **JSON** format 
+Caught exception will be send with **JSON** format 
 
-Sending caught exceptions
+Sending handled exceptions
 
 ```java
 void myTask() {
@@ -101,21 +104,22 @@ void myTask() {
         int d = 10 / 0;
     } catch(ArithmeticException e) {
         exceptionCatcher.log(e); 
-        //This method send exception in JSON format
+        //This method sends an exception with JSON-format
     }
 }
 ...
 myTask();
 ```
 
-Wherein, without using the function **log()** in the **try-catch**, the error is not send
+Wherein, without using the function **log()** in the **try-catch**, the error won't be sent.
+
 ```java
 void myTask() {
     try {
         int d = 10 / 0;
     } catch(ArithmeticException e) {
         e.printStackTrace();
-        //exception is not send
+        //The exception won't be sent
     }
 }
 ...
