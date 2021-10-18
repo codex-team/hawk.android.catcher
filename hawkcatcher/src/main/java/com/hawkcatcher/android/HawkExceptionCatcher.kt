@@ -9,8 +9,6 @@ import com.hawkcatcher.android.network.HawkClient
 import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
-import java.util.concurrent.CountDownLatch
-import java.util.concurrent.TimeUnit
 
 /**
  * Main class of Hawk Catcher.
@@ -95,9 +93,8 @@ class HawkExceptionCatcher(context: Context) :
      *
      * @param throwable
      */
-    fun caughtException(throwable: Throwable) {
-
-//        startExceptionPostService(formingJsonExceptionInfo2(throwable).toString())
+    fun caught(throwable: Throwable) {
+        startExceptionPostService(formingJsonExceptionInfo(throwable, isFatal = false))
     }
 
     /**
@@ -116,14 +113,14 @@ class HawkExceptionCatcher(context: Context) :
 
     private fun convertStackTraceElementToJson(element: StackTraceElement): JSONObject {
         val jsonStackTraceElement = JSONObject()
-        jsonStackTraceElement.put("file", element.fileName)
+        jsonStackTraceElement.put("file", element.className)
         jsonStackTraceElement.put("line", element.lineNumber)
         jsonStackTraceElement.put("column", null)
         jsonStackTraceElement.put("function", element.methodName)
         return jsonStackTraceElement
     }
 
-    private fun payload(throwable: Throwable): JSONObject {
+    private fun payload(throwable: Throwable, isFatal: Boolean = true): JSONObject {
         val versionName = metaDataProvider.getVersionName()
         val appVersion = metaDataProvider.getAppVersion()
         val title = throwable.message
@@ -150,7 +147,10 @@ class HawkExceptionCatcher(context: Context) :
      * @param throwable
      * @return
      */
-    private fun formingJsonExceptionInfo(throwable: Throwable): JSONObject {
+    private fun formingJsonExceptionInfo(
+        throwable: Throwable,
+        isFatal: Boolean = true
+    ): JSONObject {
         val causeThrowable = throwable.cause ?: throwable
         val reportJson = JSONObject()
         try {
@@ -186,9 +186,3 @@ class HawkExceptionCatcher(context: Context) :
         Log.d("Hawk", "startExceptionPostService after await at ${System.currentTimeMillis()}")
     }
 }
-
-/*
-1633732188377
-1633732188381
-1633732188382
- */
