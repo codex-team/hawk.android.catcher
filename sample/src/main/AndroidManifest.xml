@@ -3,7 +3,6 @@
     package="com.hawkcatcher.example">
 
     <application
-        android:networkSecurityConfig="@xml/network_security_config"
         android:name="com.hawkcatcher.example.HawkApplication"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
