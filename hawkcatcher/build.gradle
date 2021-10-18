@@ -3,6 +3,8 @@ plugins {
     id 'kotlin-android'
 }
 
+group = 'com.github.codex-team'
+
 android {
     compileSdkVersion 31
 
