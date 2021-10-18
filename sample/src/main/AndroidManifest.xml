@@ -21,7 +21,9 @@
             </intent-filter>
         </activity>
 
-        <meta-data android:name="hawk_catcher_token" android:value="eyJpbnRlZ3JhdGlvbklkIjoiNTlmMDU5ZmMtMDBkMi00NDBiLTljNzYtYmQzY2MyZDJmZDc3Iiwic2VjcmV0IjoiNWJjOTlhMDEtY2M5Yy00MGFiLTllODItNDZkMGQyNmZlY2JiIn0="/>
+        <meta-data
+            android:name="hawk_catcher_token"
+            android:value="TOKEN" />
     </application>
 
 </manifest>

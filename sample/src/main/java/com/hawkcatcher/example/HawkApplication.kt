@@ -4,8 +4,13 @@ import android.app.Application
 import com.hawkcatcher.android.HawkExceptionCatcher
 
 class HawkApplication : Application() {
+    companion object {
+        lateinit var hawkExceptionCatcher: HawkExceptionCatcher
+    }
+
     override fun onCreate() {
         super.onCreate()
-        HawkExceptionCatcher(this).start()
+        hawkExceptionCatcher = HawkExceptionCatcher(this)
+        hawkExceptionCatcher.start()
     }
 }
