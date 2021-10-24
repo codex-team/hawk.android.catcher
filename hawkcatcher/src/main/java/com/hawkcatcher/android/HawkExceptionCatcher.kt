@@ -2,7 +2,10 @@ package com.hawkcatcher.android
 
 import android.content.Context
 import android.util.Log
+import com.hawkcatcher.android.addons.Addon
 import com.hawkcatcher.android.addons.DeviceSpecificAddon
+import com.hawkcatcher.android.addons.UserAddon
+import com.hawkcatcher.android.addons.UserAddonWrapper
 import com.hawkcatcher.android.configurations.HawkConfigurations
 import com.hawkcatcher.android.json.JSONStringer
 import com.hawkcatcher.android.network.HawkClient
@@ -20,6 +23,9 @@ class HawkExceptionCatcher(context: Context) :
         private val CATCHER_TYPE = "errors/android"
     }
 
+    /**
+     * Old handler that will setup like as default in application
+     */
     private var oldHandler: Thread.UncaughtExceptionHandler? = null
 
     /**
@@ -31,7 +37,7 @@ class HawkExceptionCatcher(context: Context) :
         private set
 
     /**
-     *
+     * Meta data provider for getting information
      */
     private val metaDataProvider = MetaDataProvider(context)
 
@@ -43,11 +49,10 @@ class HawkExceptionCatcher(context: Context) :
         listOf(DeviceSpecificAddon(DeviceInfo(context)))
     )
 
-    private var client: HawkClient? = null
-
     /**
-     * @param token - hawk initialization project token
+     * Client for sending events
      */
+    private var client: HawkClient? = null
 
     /**
      * Start listen uncaught exceptions
@@ -62,6 +67,18 @@ class HawkExceptionCatcher(context: Context) :
         client = HawkClient(configuration.integrationId)
         oldHandler = Thread.getDefaultUncaughtExceptionHandler()
         Thread.setDefaultUncaughtExceptionHandler(this)
+    }
+
+    fun addUserAddon(userAddon: UserAddon) {
+        configuration.addUserAddon(userAddon)
+    }
+
+    fun removeUserAddon(userAddon: UserAddon) {
+        configuration.removeUserAddon(userAddon)
+    }
+
+    fun removeUserAddonByName(name: String) {
+        configuration.removeUserAddon(name)
     }
 
     /**
@@ -98,6 +115,42 @@ class HawkExceptionCatcher(context: Context) :
     }
 
     /**
+     * Post any exception to server
+     *
+     * @param throwable
+     * @param map
+     */
+    fun caught(throwable: Throwable, map: Map<String, Any>) {
+        startExceptionPostService(
+            formingJsonExceptionInfo(
+                throwable, isFatal = false,
+                object : UserAddon {
+                    override val name: String
+                        get() = "customData"
+
+                    override fun provideData(): Map<String, Any> = map
+                }
+            )
+        )
+    }
+
+    /**
+     * Post any exception to server
+     *
+     * @param throwable
+     * @param customUserAddon
+     */
+    fun caught(throwable: Throwable, customUserAddon: UserAddon) {
+        startExceptionPostService(
+            formingJsonExceptionInfo(
+                throwable,
+                isFatal = false,
+                customUserAddon
+            )
+        )
+    }
+
+    /**
      * Forming stack trace
      *
      * @param throwable
@@ -111,6 +164,12 @@ class HawkExceptionCatcher(context: Context) :
         return jsonBacktrace
     }
 
+    /**
+     * Forming stack trace information
+     *
+     * @param element stack trace element
+     * @return json object with information of stack trace element
+     */
     private fun convertStackTraceElementToJson(element: StackTraceElement): JSONObject {
         val jsonStackTraceElement = JSONObject()
         jsonStackTraceElement.put("file", element.className)
@@ -120,17 +179,34 @@ class HawkExceptionCatcher(context: Context) :
         return jsonStackTraceElement
     }
 
-    private fun payload(throwable: Throwable, isFatal: Boolean = true): JSONObject {
+    /**
+     * Forming payload information of event
+     *
+     * @param throwable [Throwable]
+     * @param isFatal Flag if throwable if fatal
+     * @param userAddon Additional external information
+     */
+    private fun payload(
+        throwable: Throwable,
+        isFatal: Boolean = true,
+        userAddon: Addon? = null
+    ): JSONObject {
         val versionName = metaDataProvider.getVersionName()
         val appVersion = metaDataProvider.getAppVersion()
         val title = throwable.message
         val type = throwable::class.java.simpleName
         val backtrace = getStackTrace(throwable)
         val release = "$versionName($appVersion)"
-        val addons = JSONObject().also { jsonObject ->
+        val addons = JSONObject().also { addonsObject ->
             configuration.addons.forEach { addon ->
-                addon.fillJsonObject(jsonObject)
+                addon.fillJsonObject(addonsObject)
             }
+        }
+        val context = JSONObject().also { contextObject ->
+            configuration.userAddons.forEach { addon ->
+                addon.fillJsonObject(contextObject)
+            }
+            userAddon?.fillJsonObject(contextObject)
         }
         return JSONObject().apply {
             put("title", title)
@@ -138,6 +214,7 @@ class HawkExceptionCatcher(context: Context) :
             put("backtrace", backtrace)
             put("release", release)
             put("addons", addons)
+            put("context", context)
         }
     }
 
@@ -145,32 +222,49 @@ class HawkExceptionCatcher(context: Context) :
      * Create json with exception and device information
      *
      * @param throwable
+     * @param isFatal Flag if throwable if fatal
+     * @param externalUserAddon Additional external information
      * @return
      */
     private fun formingJsonExceptionInfo(
         throwable: Throwable,
-        isFatal: Boolean = true
+        isFatal: Boolean = true,
+        externalUserAddon: UserAddon? = null
     ): JSONObject {
         val causeThrowable = throwable.cause ?: throwable
         val reportJson = JSONObject()
         try {
             reportJson.put("token", metaDataProvider.getToken())
             reportJson.put("catcherType", CATCHER_TYPE)
-            reportJson.put("payload", payload(causeThrowable))
+            reportJson.put(
+                "payload",
+                payload(causeThrowable, userAddon = externalUserAddon.wrapIfNotNull())
+            )
         } catch (e: JSONException) {
             e.printStackTrace()
         }
-        Log.d("Post json", reportJson.toString())
+        Log.d("Hawk", "Post json = $reportJson")
         return reportJson
+    }
+
+    fun UserAddon?.wrapIfNotNull(): Addon? {
+        return if (this != null) {
+            UserAddonWrapper(this)
+        } else {
+            null
+        }
     }
 
     /**
      * Start service with post data
      *
      * @param exceptionInfoJSON
+     * @param withWaiting
      */
-    private fun startExceptionPostService(exceptionInfoJSON: JSONObject) {
-        Log.d("Hawk", "startExceptionPostService ${System.currentTimeMillis()}")
+    private fun startExceptionPostService(
+        exceptionInfoJSON: JSONObject,
+        withWaiting: Boolean = true
+    ) {
         val hawkClient = client
         if (hawkClient == null) {
             Log.e("Hawk", "Cant send event without correct a client")
@@ -178,11 +272,10 @@ class HawkExceptionCatcher(context: Context) :
         }
         val json = JSONStringer()
         json.writeObject(exceptionInfoJSON)
-        Log.d("Hawk", "startExceptionPostService try post event at ${System.currentTimeMillis()}")
         PostExecutionService(hawkClient)
             .postEvent(json.toString())
-
-        hawkClient.await()
-        Log.d("Hawk", "startExceptionPostService after await at ${System.currentTimeMillis()}")
+        if (withWaiting) {
+            hawkClient.await()
+        }
     }
 }
