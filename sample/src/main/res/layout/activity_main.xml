@@ -20,4 +20,34 @@
             android:layout_height="wrap_content"
             android:text="Catch!" />
 
+        <EditText
+            android:id="@+id/et_save_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:inputType="textPersonName"
+            android:minHeight="48dp"
+            android:text="Name" />
+
+        <Button
+            android:id="@+id/btn_save_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Save name" />
+
+        <EditText
+            android:id="@+id/et_save_custom_field"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:inputType="textPersonName"
+            android:minHeight="48dp"
+            android:text="Custom field" />
+
+        <Button
+            android:id="@+id/btn_send_with_custom_field"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Send with custom field" />
+
 </LinearLayout>

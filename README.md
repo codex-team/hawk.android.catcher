@@ -2,7 +2,9 @@
 ### Exception catcher
 
 This library provides in-app errors catching and sending them to the [Hawk](https://hawk.so).  monitoring system.
-You can also send errors, which you caught in **try-catch**
+You can also send errors, which you caught in **try-catch**.
+
+**Minimum required Android SDK 16**
 
 -----
 
