@@ -1,1 +1,1 @@
-include ':app', ':hawkcatcher'
+include ':sample', ':hawkcatcher'
