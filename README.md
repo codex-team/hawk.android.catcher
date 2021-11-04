@@ -1,4 +1,4 @@
-# Hawk Android catcher ![](https://jitpack.io/v/jitpack/maven-simple.svg?style=flat-square)
+# Hawk Android catcher [![](https://jitpack.io/v/codex-team/hawk.android.catcher.svg)](https://jitpack.io/#codex-team/hawk.android.catcher)
 ### Exception catcher
 
 This library provides in-app errors catching and sending them to the [Hawk](https://hawk.so).  monitoring system.
@@ -19,7 +19,7 @@ To connect the library, add the following code to your **build.gradle** config.
    }
    ...
    dependencies {
-        compile 'com.github.codex-team:hawk.android.catcher:v3.0'
+        implementation 'com.github.codex-team:hawk.android.catcher:v3.0'
    }
 ```
 ### Example
